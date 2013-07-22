@@ -27,8 +27,6 @@
 #include <iostream>
 #include <string>
 
-#define WINDOW_DFLT_WIDTH                     800
-#define WINDOW_DFLT_HEIGHT                    522
 #define WINDOW_DFLT_FONT_FAMILY               ""
 #define WINDOW_DFLT_FONT_POINT_SIZE           36
 #define WINDOW_DFLT_FONT_WEIGHT               50
@@ -87,20 +85,19 @@ static void readItemsFromStream(istream *file, vitem *v)
         bitem = false;
         v->push_back(item);
       }
-      if (tline.compare(0, 5, "name ") == 0)
+      if (tline.compare(0, 4, "name") == 0)
       {
-        string val = tline.substr(5, tline.length() - 5);
+        string val = tline.substr(4, tline.length() - 4);
         item->name = trim(val);
       }
-      if (tline.compare(0, 5, "exec ") == 0)
+      if (tline.compare(0, 4, "exec") == 0)
       {
-        string val = tline.substr(5, tline.length() - 5);
+        string val = tline.substr(4, tline.length() - 4);
         item->execCmd = trim(val);
-
       }
-      if (tline.compare(0, 5, "icon ") == 0)
+      if (tline.compare(0, 4, "icon") == 0)
       {
-        string val = tline.substr(5, tline.length() - 5);
+        string val = tline.substr(4, tline.length() - 4);
         item->iconPath = trim(val);
       }
     }
@@ -132,8 +129,10 @@ static char* getCmdOption(char **begin, char **end, const string &option)
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
+  QRect screenGeometry = QApplication::desktop()->screenGeometry();
   int ret = -1;
   char *buf;
+  int window_x, window_y; // posX, posY
   int window_w, window_h; // width, height
   const char *window_font; // font family
   int window_fs, window_fw; // font size, weight
@@ -143,20 +142,14 @@ int main(int argc, char *argv[])
   buf = getCmd(argv, argv + argc, "--help");
   if (buf)
   {
-    cout << "Usage : app-selector [OPTION]... < [ITEM FILE]\n"
-            "\nLaunch applications selector GUI and return the 'exec' command of selected\n"
-            "item.\n"
-            "\nOptional arguments :\n"
-            " --geometry\n"
-            "             This option specifies the preferred size of window. [WxH]\n"
-            " --font\n"
-            "             This option specifies the prefered font family name.\n"
-            " --font-size\n"
-            "             This option specifies the font point size.\n"
-            " --font-weight\n"
-            "             This option specifies the font weight.\n"
-            " --icon-size\n"
-            "             This option specifies the icon size.\n"
+    cout << "Application selector usage:\n"
+            "    app-selector [OPTION]... < [ITEM FILE]\n"
+            "\nwhere options include:\n"
+            "    --geometry WxH               size of window.\n"
+            "    --font fontname              font family name.\n"
+            "    --font-size size             font point size.\n"
+            "    --font-weight weight         font weight.\n"
+            "    --icon-size size             icon size.\n"
             "\nStructure of items file :\n"
             "<item>\n"
             "    name    [Friendly name of application]\n"
@@ -170,8 +163,15 @@ int main(int argc, char *argv[])
   buf = getCmdOption(argv, argv + argc, "--geometry");
   if (!buf || sscanf(buf, "%ix%i", &window_w, &window_h) != 2)
   {
-    window_w = WINDOW_DFLT_WIDTH;
-    window_h = WINDOW_DFLT_HEIGHT;
+    window_x = 0;
+    window_y = 0;
+    window_w = screenGeometry.width();
+    window_h = screenGeometry.height();
+  }
+  else
+  {
+      window_x = (screenGeometry.width() - window_w) / 2;
+      window_y = (screenGeometry.height() - window_h) / 2;
   }
   buf = getCmdOption(argv, argv + argc, "--font");
   if (!buf)
@@ -199,8 +199,9 @@ int main(int argc, char *argv[])
 
   MainWindow window;
 
-  // Setup our window size
+  // Setup our window size and position
   window.resize(window_w, window_h);
+  window.move(window_x, window_y);
 
   // Setup our font face, size and weight
   QFont font;
@@ -212,12 +213,6 @@ int main(int argc, char *argv[])
 
   // Setup our icon size
   window.setIconSize(QSize(window_is, window_is));
-
-  // Main window is shown in the center of our desktop screen
-  QRect screenGeometry = QApplication::desktop()->screenGeometry();
-  int x = (screenGeometry.width() - window.width()) / 2;
-  int y = (screenGeometry.height() - window.height()) / 2;
-  window.move(x, y);
 
   for (vitem::iterator it = v->begin(); it != v->end(); ++it)
     window.AddItem(QString((*it)->name.c_str()),

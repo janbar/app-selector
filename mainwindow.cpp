@@ -24,11 +24,13 @@
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
 ui(new Ui::MainWindow),
-m_selection(-1)
+m_selection(-1),
+m_current(-1)
 {
   ui->setupUi(this);
   ui->listWidget->setFocus();
   connect(ui->listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(DoSelect()));
+  connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(OnSelectionChanged()));
 }
 
 MainWindow::~MainWindow()
@@ -44,8 +46,10 @@ void MainWindow::AddItem(const QString &text, const QString &iconPath, const QSt
   item->setIcon(*icon);
   item->setWhatsThis(whatsThis);
   ui->listWidget->addItem(item);
-  if (ui->listWidget->count() == 1)
+  if (m_current < 0 && ui->listWidget->count() > 0)
+  {
     ui->listWidget->setCurrentItem(item);
+  }
 }
 
 int MainWindow::GetSelected()
@@ -73,4 +77,9 @@ void MainWindow::DoSelect()
 {
   m_selection = ui->listWidget->currentRow();
   this->close();
+}
+
+void MainWindow::OnSelectionChanged()
+{
+  m_current = ui->listWidget->currentRow();
 }

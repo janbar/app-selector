@@ -23,6 +23,7 @@
 
 #include "item.h"
 #include <QMainWindow>
+#include <QString>
 
 namespace Ui {
   class MainWindow;
@@ -45,10 +46,12 @@ protected:
 
 private slots:
   void DoSelect();
+  void OnSelectionChanged();
 
 private:
   Ui::MainWindow *ui;
   int m_selection;
+  int m_current;
 
 };
 
