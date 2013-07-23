@@ -10,24 +10,18 @@ Build from source
 make clean
 make
 
-Usage
-=====
+Usage (app-selector --help)
+===========================
 
-Usage : app-selector [OPTION]... < [ITEM FILE]
+Application selector usage:
+    app-selector [OPTION]... < [ITEM FILE]
 
-Launch applications selector GUI and return the 'exec' command of selecteditem.
-
-Optional arguments :
- --geometry
-             This option specifies the preferred size of window. [WxH]
- --font
-             This option specifies the prefered font family name.
- --font-size
-             This option specifies the font point size.
- --font-weight
-             This option specifies the font weight.
- --icon-size
-             This option specifies the icon size.
+where options include:
+    --geometry WxH               size of window.
+    --font fontname              font family name.
+    --font-size size             font point size.
+    --font-weight weight         font weight.
+    --icon-size size             icon size.
 
 Structure of items file :
 <item>
@@ -38,21 +32,47 @@ Structure of items file :
 <item>
 ...
 
+
 Sample
 ======
 
-1 - Launch selector GUI from shell and execute selected application
+1 - Launch full screen GUI from shell and execute selected application
 
-$(./app-selector --gemometry 800x522 --font-size 36 --icon-size 102 <<EOF
+while [ true ]; do
+$(app-selector --font Ubuntu --font-size 36 --font-weight 50 --icon-size 128 <<EOF
 <item>
-  name XTerm - X11 terminal
-  exec /usr/bin/xterm -fn 9x15
-  icon /usr/share/pixmaps/gnome-xterm.png
+  name XBMC mediacenter
+  exec /usr/local/bin/xbmc-standalone
+  icon /usr/local/share/xbmc/media/icon.png
 </item>
 <item>
-  name Firefox - Internet browser
-  exec /usr/bin/firefox
-  icon /usr/share/icons/Faenza/apps/scalable/firefox-original.svg
+  name MythTV frontend
+  exec /usr/local/bin/go-mythfrontend
+  icon /usr/local/share/icons/mythtv.png
+</item>
+<item>
+  name MythTV setup
+  exec /usr/local/bin/go-mythtv-setup
+  icon /usr/local/share/icons/mythsetup.png
+</item>
+<item>
+  #Null:separator
+</item>
+<item>
+  name Stop GUI
+  exec break
+  #No icon!
+</item>
+<item>
+  name Reboot
+  exec sudo shutdown -r now
+  #No icon!
+</item>
+<item>
+  name Halt
+  exec sudo shutdown -h now
+  #No icon!
 </item>
 EOF
 )
+done
