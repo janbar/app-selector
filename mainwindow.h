@@ -37,8 +37,8 @@ public:
 
   void AddItem(const Item &item);
   int GetSelected();
-  void setFont(const QFont &);
-  void setIconSize(const QSize& iconSize);
+  void setFont(const QFont &font);
+  void setIconSize(const QSize &iconSize);
 
 protected:
   void resizeEvent(QResizeEvent *event);

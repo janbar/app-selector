@@ -62,12 +62,12 @@ void MainWindow::resizeEvent(QResizeEvent *event)
   QWidget::resizeEvent(event);
 }
 
-void MainWindow::setFont(const QFont& font)
+void MainWindow::setFont(const QFont &font)
 {
   ui->listWidget->setFont(font);
 }
 
-void MainWindow::setIconSize(const QSize& iconSize)
+void MainWindow::setIconSize(const QSize &iconSize)
 {
   ui->listWidget->setIconSize(iconSize);
 }
