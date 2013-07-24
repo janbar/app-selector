@@ -84,7 +84,7 @@ static void readItemsFromStream(istream *file, vitem &v)
       if (tline.compare(0, 4, "name") == 0)
       {
         string val = tline.substr(4, tline.length() - 4);
-        item.name = QString(trim(val).c_str());
+        item.name = QString::fromUtf8(trim(val).c_str());
       }
       if (tline.compare(0, 4, "exec") == 0)
       {
