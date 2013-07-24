@@ -21,9 +21,9 @@
 #include "item.h"
 
 Item::Item()
-: name("")
-, execCmd("")
-, iconPath("")
+: name(QString())
+, execCmd(QString())
+, iconPath(QString())
 {
 }
 

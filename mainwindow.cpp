@@ -38,17 +38,16 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
-void MainWindow::AddItem(const QString &text, const QString &iconPath, const QString &whatsThis)
+void MainWindow::AddItem(const Item &item)
 {
-  QListWidgetItem *item = new QListWidgetItem;
-  QIcon *icon = new QIcon(iconPath);
-  item->setText(text);
-  item->setIcon(*icon);
-  item->setWhatsThis(whatsThis);
-  ui->listWidget->addItem(item);
+  QListWidgetItem *witem = new QListWidgetItem;
+  witem->setText(item.name);
+  witem->setIcon(QIcon(item.iconPath));
+  witem->setWhatsThis(item.execCmd);
+  ui->listWidget->addItem(witem);
   if (m_current < 0 && ui->listWidget->count() > 0)
   {
-    ui->listWidget->setCurrentItem(item);
+    ui->listWidget->setCurrentItem(witem);
   }
 }
 

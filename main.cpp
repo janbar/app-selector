@@ -18,7 +18,6 @@
  *
  */
 
-#include "item.h"
 #include "mainwindow.h"
 #include <assert.h>
 #include <stdio.h>
@@ -34,7 +33,7 @@
 
 using namespace std;
 
-typedef vector<Item*> vitem;
+typedef vector<Item> vitem;
 
 // trim from start
 
@@ -59,13 +58,10 @@ static inline string &trim(string &s)
   return ltrim(rtrim(s));
 }
 
-static void readItemsFromStream(istream *file, vitem *v)
+static void readItemsFromStream(istream *file, vitem &v)
 {
   bool bitem = false;
-  Item *item;
-
-  assert(v != NULL);
-  v->clear();
+  Item item;
 
   while (*file)
   {
@@ -76,34 +72,32 @@ static void readItemsFromStream(istream *file, vitem *v)
     if (tline.compare(0, 6, "<item>") == 0)
     {
       bitem = true;
-      item = new Item;
+      item = Item();
     }
     else if (bitem)
     {
       if (tline.compare(0, 7, "</item>") == 0)
       {
         bitem = false;
-        v->push_back(item);
+        v.push_back(item);
       }
       if (tline.compare(0, 4, "name") == 0)
       {
         string val = tline.substr(4, tline.length() - 4);
-        item->name = trim(val);
+        item.name = QString(trim(val).c_str());
       }
       if (tline.compare(0, 4, "exec") == 0)
       {
         string val = tline.substr(4, tline.length() - 4);
-        item->execCmd = trim(val);
+        item.execCmd = QString(trim(val).c_str());
       }
       if (tline.compare(0, 4, "icon") == 0)
       {
         string val = tline.substr(4, tline.length() - 4);
-        item->iconPath = trim(val);
+        item.iconPath = QString(trim(val).c_str());
       }
     }
   }
-  if (bitem)
-    delete item;
 }
 
 static char* getCmd(char **begin, char **end, const string &option)
@@ -194,7 +188,7 @@ int main(int argc, char *argv[])
     window_is = WINDOW_DFLT_ICON_SIZE;
   }
 
-  vitem *v = new vitem;
+  vitem v;
   readItemsFromStream(&cin, v);
 
   MainWindow window;
@@ -214,10 +208,8 @@ int main(int argc, char *argv[])
   // Setup our icon size
   window.setIconSize(QSize(window_is, window_is));
 
-  for (vitem::iterator it = v->begin(); it != v->end(); ++it)
-    window.AddItem(QString((*it)->name.c_str()),
-          QString((*it)->iconPath.c_str()),
-          QString((*it)->execCmd.c_str()));
+  for (vitem::iterator it = v.begin(); it != v.end(); ++it)
+    window.AddItem(*it);
 
   window.show();
 
@@ -228,15 +220,11 @@ int main(int argc, char *argv[])
     int selection = window.GetSelected();
     if (selection >= 0)
     {
-      Item *item = v->at(selection);
-      cout << item->execCmd;
+      Item item = v.at(selection);
+      cout << item.execCmd.toStdString();
       cout << "\n";
     }
   }
-
-  for (vitem::iterator it = v->begin(); it != v->end(); ++it)
-    delete *it;
-  delete v;
 
   return ret;
 }

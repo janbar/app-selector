@@ -23,7 +23,6 @@
 
 #include "item.h"
 #include <QMainWindow>
-#include <QString>
 
 namespace Ui {
   class MainWindow;
@@ -36,7 +35,7 @@ public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
 
-  void AddItem(const QString &text, const QString &iconPath, const QString &whatsThis);
+  void AddItem(const Item &item);
   int GetSelected();
   void setFont(const QFont &);
   void setIconSize(const QSize& iconSize);

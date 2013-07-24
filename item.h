@@ -21,15 +21,13 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#include <string>
-
-using namespace std;
+#include <QString>
 
 class Item {
 public:
-  string name;
-  string execCmd;
-  string iconPath;
+  QString name;
+  QString execCmd;
+  QString iconPath;
 
   Item();
   virtual ~Item();
