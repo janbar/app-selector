@@ -212,6 +212,7 @@ int main(int argc, char *argv[])
     window.AddItem(*it);
 
   window.show();
+  window.activateWindow();
 
   ret = a.exec();
 
