@@ -19,6 +19,7 @@
  */
 
 #include "mainwindow.h"
+#include "jsonparser.h"
 #include <assert.h>
 #include <stdio.h>
 #include <QApplication>
@@ -35,67 +36,38 @@ using namespace std;
 
 typedef vector<Item> vitem;
 
-// trim from start
-
-static inline string &ltrim(string &s)
+static void readJsonFromStream(istream *file, vitem &v)
 {
-  s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
-  return s;
-}
-
-// trim from end
-
-static inline string &rtrim(string &s)
-{
-  s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
-  return s;
-}
-
-// trim from both ends
-
-static inline string &trim(string &s)
-{
-  return ltrim(rtrim(s));
-}
-
-static void readItemsFromStream(istream *file, vitem &v)
-{
-  bool bitem = false;
-  Item item;
-
+  string doc;
   while (*file)
   {
-    string sline;
-    getline(*file, sline);
-    string tline = trim(sline);
+    string line;
+    getline(*file, line);
+    doc.append(line);
+  }
 
-    if (tline.compare(0, 6, "<item>") == 0)
+  JSON::Document json(doc);
+  if (!json.IsValid())
+    return;
+  JSON::Node root = json.GetRoot();
+  if (root.IsArray())
+  {
+    for (size_t i = 0; i < root.Size(); ++i)
     {
-      bitem = true;
-      item = Item();
-    }
-    else if (bitem)
-    {
-      if (tline.compare(0, 7, "</item>") == 0)
-      {
-        bitem = false;
-        v.push_back(item);
-      }
-      if (tline.compare(0, 4, "name") == 0)
-      {
-        string val = tline.substr(4, tline.length() - 4);
-        item.name = QString::fromUtf8(trim(val).c_str());
-      }
-      if (tline.compare(0, 4, "exec") == 0)
-      {
-        string val = tline.substr(4, tline.length() - 4);
-        item.execCmd = QString(trim(val).c_str());
-      }
-      if (tline.compare(0, 4, "icon") == 0)
-      {
-        string val = tline.substr(4, tline.length() - 4);
-        item.iconPath = QString(trim(val).c_str());
-      }
+      JSON::Node elem = root.GetArrayElement(i);
+      if (!elem.IsObject())
+        continue;
+      Item item;
+      JSON::Node f1(elem.GetObjectValue("name"));
+      if (f1.IsString())
+        item.name = QString(f1.GetStringValue().c_str());
+      JSON::Node f2(elem.GetObjectValue("exec"));
+      if (f2.IsString())
+        item.execCmd = QString(f2.GetStringValue().c_str());
+      JSON::Node f3(elem.GetObjectValue("icon"));
+      if (f3.IsString())
+        item.iconPath = QString(f3.GetStringValue().c_str());
+      v.push_back(item);
     }
   }
 }
@@ -144,14 +116,13 @@ int main(int argc, char *argv[])
             "    --font-size size             font point size.\n"
             "    --font-weight weight         font weight.\n"
             "    --icon-size size             icon size.\n"
-            "\nStructure of items file :\n"
-            "<item>\n"
-            "    name    [Friendly name of application]\n"
-            "    icon    [Icon path]\n"
-            "    exec    [Command line or any data as output]\n"
-            "</item>\n"
-            "<item>\n"
-            "...\n";
+            "\nStructure of JSON file :\n"
+            "[\n  {\n"
+            "    \"name\": <string>, /* Friendly name of application       */\n"
+            "    \"exec\": <string>, /* Command line or any data as output */\n"
+            "    \"icon\": <string>  /* Icon path                          */\n"
+            "  }, ...\n"
+            "]\n";
     return 0;
   }
   buf = getCmdOption(argv, argv + argc, "--geometry");
@@ -189,7 +160,7 @@ int main(int argc, char *argv[])
   }
 
   vitem v;
-  readItemsFromStream(&cin, v);
+  readJsonFromStream(&cin, v);
 
   MainWindow window;
 

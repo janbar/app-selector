@@ -14,9 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-        item.cpp
+        item.cpp \
+        jsonparser.cpp
 
 HEADERS  += mainwindow.h \
-        item.h
+        item.h \
+        sajson.h \
+        jsonparser.h
 
 FORMS    += mainwindow.ui
