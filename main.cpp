@@ -60,13 +60,13 @@ static void readJsonFromStream(istream *file, vitem &v)
       Item item;
       JSON::Node f1(elem.GetObjectValue("name"));
       if (f1.IsString())
-        item.name = QString(f1.GetStringValue().c_str());
+        item.name = QString::fromUtf8(f1.GetStringValue().c_str());
       JSON::Node f2(elem.GetObjectValue("exec"));
       if (f2.IsString())
-        item.execCmd = QString(f2.GetStringValue().c_str());
+        item.execCmd = QString::fromUtf8(f2.GetStringValue().c_str());
       JSON::Node f3(elem.GetObjectValue("icon"));
       if (f3.IsString())
-        item.iconPath = QString(f3.GetStringValue().c_str());
+        item.iconPath = QString::fromUtf8(f3.GetStringValue().c_str());
       v.push_back(item);
     }
   }
