@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
   const char *window_font; // font family
   int window_fs, window_fw; // font size, weight
   int window_is; // icon size
+  bool fs;
 
   // Processing command line arguments
   buf = getCmd(argv, argv + argc, "--help");
@@ -111,6 +112,7 @@ int main(int argc, char *argv[])
     cout << "Application selector usage:\n"
             "    app-selector [OPTION]... < [ITEM FILE]\n"
             "\nwhere options include:\n"
+            "    --fullscreen                 use the entire screen.\n"
             "    --geometry WxH               size of window.\n"
             "    --font fontname              font family name.\n"
             "    --font-size size             font point size.\n"
@@ -125,6 +127,11 @@ int main(int argc, char *argv[])
             "]\n";
     return 0;
   }
+  buf = getCmdOption(argv, argv + argc, "--fullscreen");
+  if (buf)
+    fs = true;
+  else
+    fs = false;
   buf = getCmdOption(argv, argv + argc, "--geometry");
   if (!buf || sscanf(buf, "%ix%i", &window_w, &window_h) != 2)
   {
@@ -182,7 +189,10 @@ int main(int argc, char *argv[])
   for (vitem::iterator it = v.begin(); it != v.end(); ++it)
     window.AddItem(*it);
 
-  window.show();
+  if (fs)
+    window.showFullScreen();
+  else
+    window.show();
   window.activateWindow();
 
   ret = a.exec();
