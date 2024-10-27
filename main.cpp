@@ -23,14 +23,16 @@
 #include <assert.h>
 #include <stdio.h>
 #include <QApplication>
+#include <QScreen>
+#include <QString>
 #include <QDesktopWidget>
+
 #include <iostream>
 #include <string>
 
 #define WINDOW_DFLT_FONT_FAMILY               ""
-#define WINDOW_DFLT_FONT_POINT_SIZE           36
 #define WINDOW_DFLT_FONT_WEIGHT               50
-#define WINDOW_DFLT_ICON_SIZE                 102
+#define WINDOW_DFLT_ROW_COUNT                 24
 
 using namespace std;
 
@@ -95,14 +97,14 @@ static char* getCmdOption(char **begin, char **end, const string &option)
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
-  QRect screenGeometry = QApplication::desktop()->screenGeometry();
+  QRect screenGeometry = QGuiApplication::primaryScreen()->geometry();
   int ret = -1;
   char *buf;
   int window_x, window_y; // posX, posY
   int window_w, window_h; // width, height
-  const char *window_font; // font family
-  int window_fs, window_fw; // font size, weight
-  int window_is; // icon size
+  const char *font_name;
+  int font_weight;
+  int row_count;
   bool fs;
 
   // Processing command line arguments
@@ -115,9 +117,8 @@ int main(int argc, char *argv[])
             "    --fullscreen                 use the entire screen.\n"
             "    --geometry WxH               size of window.\n"
             "    --font fontname              font family name.\n"
-            "    --font-size size             font point size.\n"
             "    --font-weight weight         font weight.\n"
-            "    --icon-size size             icon size.\n"
+            "    --rows count                 page size.\n"
             "\nStructure of JSON file :\n"
             "[\n  {\n"
             "    \"name\": <string>, /* Friendly name of application       */\n"
@@ -147,24 +148,23 @@ int main(int argc, char *argv[])
   }
   buf = getCmdOption(argv, argv + argc, "--font");
   if (!buf)
-    window_font = WINDOW_DFLT_FONT_FAMILY;
+    font_name = WINDOW_DFLT_FONT_FAMILY;
   else
-    window_font = buf;
-  buf = getCmdOption(argv, argv + argc, "--font-size");
-  if (!buf || sscanf(buf, "%i", &window_fs) != 1)
-  {
-    window_fs = WINDOW_DFLT_FONT_POINT_SIZE;
-  }
+    font_name = buf;
   buf = getCmdOption(argv, argv + argc, "--font-weight");
-  if (!buf || sscanf(buf, "%i", &window_fw) != 1)
+  if (!buf || sscanf(buf, "%i", &font_weight) != 1)
   {
-    window_fw = WINDOW_DFLT_FONT_WEIGHT;
+    font_weight = WINDOW_DFLT_FONT_WEIGHT;
   }
-  buf = getCmdOption(argv, argv + argc, "--icon-size");
-  if (!buf || sscanf(buf, "%i", &window_is) != 1)
+  buf = getCmdOption(argv, argv + argc, "--rows");
+  if (!buf || sscanf(buf, "%i", &row_count) != 1)
   {
-    window_is = WINDOW_DFLT_ICON_SIZE;
+    row_count = WINDOW_DFLT_ROW_COUNT;
   }
+
+  // fix limits
+  row_count = (row_count < 5 ? 5 : (row_count > 25 ? 25 : row_count));
+  int row_height = window_h / row_count;
 
   vitem v;
   readJsonFromStream(&cin, v);
@@ -177,14 +177,16 @@ int main(int argc, char *argv[])
 
   // Setup our font face, size and weight
   QFont font;
-  font.setFamily(QString::fromUtf8(window_font));
-  font.setPointSize(window_fs);
+  font.setFamily(QString::fromUtf8(font_name));
+  double font_size = 0.70 * row_height;
+  font.setPointSize(int(font_size));
   font.setBold(false);
-  font.setWeight(window_fw);
+  font.setWeight(font_weight);
   window.setFont(font);
 
   // Setup our icon size
-  window.setIconSize(QSize(window_is, window_is));
+  double icon_size = row_height;
+  window.setIconSize(QSize(icon_size, icon_size));
 
   for (vitem::iterator it = v.begin(); it != v.end(); ++it)
     window.AddItem(*it);

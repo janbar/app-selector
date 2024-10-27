@@ -30,6 +30,8 @@ m_current(-1)
   ui->setupUi(this);
   ui->listWidget->setFocus();
   connect(ui->listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(DoSelect()));
+  connect(ui->listWidget, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(DoSelect()));
+  connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(DoSelect()));
   connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(OnSelectionChanged()));
 }
 

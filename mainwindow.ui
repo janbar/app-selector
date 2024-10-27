@@ -27,7 +27,6 @@
      <font>
       <family>FreeSans</family>
       <pointsize>36</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -41,16 +40,19 @@
      </size>
     </property>
     <property name="movement">
-     <enum>QListView::Static</enum>
+     <enum>QListView::Movement::Static</enum>
     </property>
     <property name="resizeMode">
-     <enum>QListView::Adjust</enum>
+     <enum>QListView::ResizeMode::Adjust</enum>
+    </property>
+    <property name="spacing">
+     <number>0</number>
     </property>
     <property name="viewMode">
-     <enum>QListView::ListMode</enum>
+     <enum>QListView::ViewMode::ListMode</enum>
     </property>
     <property name="uniformItemSizes">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="wordWrap">
      <bool>false</bool>
